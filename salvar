@@ -1,0 +1,19 @@
+#!/bin/bash
+
+grep -q ^sislegis /etc/passwd || { echo "Usuário sislegis não existe!"; exit; }
+
+sudo -i -u sislegis bash <<EOF
+source ~/.`hostname -s`
+salvar_instaladores
+EOF
+
+mkdir -p sislegis
+cd sislegis
+
+for d in \
+  .m2 \
+  .forge \
+  sislegis-ambiente.instaladores 
+do
+    sudo rsync -avR --update --delete ~sislegis/$d ./
+done

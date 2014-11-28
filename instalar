@@ -1,0 +1,69 @@
+#!/bin/bash
+# Author: Paulo Jeronimo (email: paulojeronimo@gmail.com, twitter: @paulojeronimo)
+set +x
+
+source config
+
+BAIXA_ARQUIVO=`$BAIXA_INSTALADORES && echo -n --baixa-arquivo || echo -n --nao-baixa-arquivo`
+X_INSTALADO=`type xhost &> /dev/null && echo -n true || echo -n false`
+
+sudo sed -i '
+  s/^\(%sudo.*ALL\)/#\1/
+  s/^#.*\(%sudo.*NOPASSWD.*\)/\1/
+' /etc/sudoers
+
+sudo useradd -m -s /bin/bash -G sudo sislegis &> /dev/null || {
+    echo "Falha ao criar usuário sislegis."
+    echo "O ambiente já não está instalado?"
+    exit 1; 
+}
+
+./restaurar
+
+$X_INSTALADO && {
+    cmd="xhost +si:localuser:sislegis"; $cmd
+    f=~/.bashrc; grep -q "xhost.*sislegis" $f || { echo "$cmd" >> $f; }
+}
+
+sudo -i -u sislegis bash <<EOF
+f=~/.bashrc
+
+executar_e_inserir_no_bashrc() {
+    local cmd="\$@"
+    eval \$cmd; echo \$cmd >> \$f
+}
+
+$X_INSTALADO && echo 'export DISPLAY=:0' >> \$f
+
+$USA_PROXY && {
+    cat << _EOF | tee ~/.proxy
+export http_proxy='$http_proxy'
+export https_proxy='$https_proxy'
+_EOF
+    executar_e_inserir_no_bashrc "source ~/.proxy"
+    executar_e_inserir_no_bashrc "export INSTALA_OPCS+=\" --usa-proxy\""
+}
+
+executar_e_inserir_no_bashrc "export INSTALA_OPCS+=\" $BAIXA_ARQUIVO\""
+
+sudo apt-get install -y tar unzip wget vim python-software-properties
+sudo -E add-apt-repository -y ppa:webupd8team/java
+sudo apt-get -y update
+sudo apt-get install -y oracle-java8-installer
+
+git clone $GITHUB_SISLEGIS_DOTFILES
+${GITHUB_SISLEGIS_DOTFILES##*/}/install
+
+git config --global user.name '$GITHUB_NAME'
+git config --global user.email $GITHUB_EMAIL
+
+cat <<_EOF > ~/.projetos
+app=$GITHUB_SISLEGIS_APP
+site=$GITHUB_SISLEGIS_SITE
+_EOF
+
+git clone $GITHUB_SISLEGIS_AMBIENTE
+${GITHUB_SISLEGIS_AMBIENTE##*/}/instalar
+EOF
+
+# vim: set ts=4 sw=4 expandtab:

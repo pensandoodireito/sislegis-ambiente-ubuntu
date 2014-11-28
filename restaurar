@@ -1,0 +1,6 @@
+#!/bin/bash
+
+grep -q ^sislegis /etc/passwd || { echo "Usuário sislegis não existe!"; exit; }
+
+cd sislegis &> /dev/null || { echo "Nada a restaurar!"; exit; }
+sudo rsync -av --update . /
