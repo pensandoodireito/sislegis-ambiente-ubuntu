@@ -1,19 +1,24 @@
 #!/bin/bash
+# Author: Paulo Jeronimo (paulojeronimo@gmail.com)
+set +x
 
-grep -q ^sislegis /etc/passwd || { echo "Usuário sislegis não existe!"; exit; }
+BASEDIR=`cd $(dirname "$0"); echo -n $PWD`
+source "$BASEDIR"/config || exit 1
 
-sudo -i -u sislegis bash <<EOF
+grep -q ^$SISLEGIS_USER /etc/passwd || { echo "Usuário $SISLEGIS_USER não existe!"; exit; }
+
+sudo -i -u $SISLEGIS_USER bash <<EOF
 source ~/.`hostname -s`
 salvar_instaladores
 EOF
 
-mkdir -p sislegis
-cd sislegis
+mkdir -p $SISLEGIS_USER
+cd $SISLEGIS_USER
 
 for d in \
   .m2 \
   .forge \
   sislegis-ambiente.instaladores 
 do
-    sudo rsync -avR --update --delete ~sislegis/$d ./
+    sudo rsync -avR --update --delete ~$SISLEGIS_USER/$d ./
 done

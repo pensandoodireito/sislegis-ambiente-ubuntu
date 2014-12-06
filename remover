@@ -1,7 +1,18 @@
 #!/bin/bash
+# Author: Paulo Jeronimo (paulojeronimo@gmail.com)
 set +x
 
-./salvar
+BASEDIR=`cd $(dirname "$0"); echo -n $PWD`
+
+[ $USER = vagrant ] && {
+    cd
+    sislegis-dotfiles/remove
+    find . -type l -delete
+    rm -rf .proxy .projetos .vagrant sislegis-*
+    exit
+}
+
+"$BASEDIR"/salvar
 
 PIDS=`sudo ps -ef | grep ^sislegis | awk '{print $2}'`
 [ "$PIDS" ] && sudo kill -9 $PIDS

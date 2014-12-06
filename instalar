@@ -2,30 +2,39 @@
 # Author: Paulo Jeronimo (email: paulojeronimo@gmail.com, twitter: @paulojeronimo)
 set +x
 
-source config
+BASEDIR=`cd $(dirname "$0"); echo -n $PWD`
+source "$BASEDIR"/config || exit 1
 
 BAIXA_ARQUIVO=`$BAIXA_INSTALADORES && echo -n --baixa-arquivo || echo -n --nao-baixa-arquivo`
 X_INSTALADO=`type xhost &> /dev/null && echo -n true || echo -n false`
 
 sudo sed -i '
-  s/^\(%sudo.*ALL\)/#\1/
-  s/^#.*\(%sudo.*NOPASSWD.*\)/\1/
+    s/^\(%sudo.*ALL=\).*/\1\(ALL\) NOPASSWD:ALL/
 ' /etc/sudoers
 
-sudo useradd -m -s /bin/bash -G sudo sislegis &> /dev/null || {
-    echo "Falha ao criar usuário sislegis."
-    echo "O ambiente já não está instalado?"
-    exit 1; 
-}
+#f=/etc/vim/vimrc.local
+#modeline_str='set modeline'
+#grep -q "^$modeline_str" $f || { echo "$modeline_str" | sudo tee $f }
 
-./restaurar
+if [ $USER != vagrant ]
+then
+    sudo useradd -m -s /bin/bash -G sudo $SISLEGIS_USER &> /dev/null || {
+        echo "Falha ao criar usuário $SISLEGIS_USER."
+        echo "O ambiente já não está instalado?"
+        exit 1
+    }
 
-$X_INSTALADO && {
-    cmd="xhost +si:localuser:sislegis"; $cmd
-    f=~/.bashrc; grep -q "xhost.*sislegis" $f || { echo "$cmd" >> $f; }
-}
+    $X_INSTALADO && {
+        cmd="xhost +si:localuser:$SISLEGIS_USER"; $cmd
+        f=~/.bashrc; grep -q "xhost.*$SISLEGIS_USER" $f || { echo "$cmd" >> $f; }
+    }
+else
+    SISLEGIS_USER=vagrant
+fi
 
-sudo -i -u sislegis bash <<EOF
+"$BASEDIR"/restaurar
+
+sudo -i -u $SISLEGIS_USER bash <<EOF
 f=~/.bashrc
 
 executar_e_inserir_no_bashrc() {
@@ -46,7 +55,7 @@ _EOF
 
 executar_e_inserir_no_bashrc "export INSTALA_OPCS+=\" $BAIXA_ARQUIVO\""
 
-sudo apt-get install -y tar unzip wget vim python-software-properties
+sudo apt-get install -y tar unzip wget vim software-properties-common git
 sudo -E add-apt-repository -y ppa:webupd8team/java
 sudo apt-get -y update
 sudo apt-get install -y oracle-java8-installer
@@ -63,6 +72,9 @@ site=$GITHUB_SISLEGIS_SITE
 _EOF
 
 git clone $GITHUB_SISLEGIS_AMBIENTE
+[ \$USER = vagrant ] && { 
+    echo 'export PROJETOS_DIR=~/projetos' > ${GITHUB_SISLEGIS_AMBIENTE##*/}/ambiente.config
+}
 ${GITHUB_SISLEGIS_AMBIENTE##*/}/instalar
 EOF
 

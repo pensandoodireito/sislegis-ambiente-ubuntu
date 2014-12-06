@@ -1,5 +1,6 @@
-USA_PROXY=true
+USA_PROXY=false
 BAIXA_INSTALADORES=true
+SISLEGIS_USER=sislegis
 
 GITHUB_USER=paulojeronimo
 GITHUB_NAME='Paulo Jerônimo'
