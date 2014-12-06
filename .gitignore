@@ -1,5 +1,7 @@
+.forge
 .m2
 .vagrant
 config
 projetos
-sislegis
+sislegis-ambiente.instaladores
+var-cache.tar.gz

@@ -5,20 +5,25 @@ set +x
 BASEDIR=`cd $(dirname "$0"); echo -n $PWD`
 source "$BASEDIR"/config || exit 1
 
+[ $USER = vagrant ] && {
+    sudo tar cvfzP "$BASEDIR"/var-cache.tar.gz /var/cache
+    exit
+}
+
 grep -q ^$SISLEGIS_USER /etc/passwd || { echo "Usuário $SISLEGIS_USER não existe!"; exit; }
 
 sudo -i -u $SISLEGIS_USER bash <<EOF
-source ~/.`hostname -s`
+source .$(hostname -s)
 salvar_instaladores
 EOF
 
-mkdir -p $SISLEGIS_USER
-cd $SISLEGIS_USER
-
-for d in \
-  .m2 \
-  .forge \
-  sislegis-ambiente.instaladores 
+cd "$BASEDIR"
+for d in ${SISLEGIS_USER_DIRS[*]}
 do
-    sudo rsync -avR --update --delete ~$SISLEGIS_USER/$d ./
+    [ $d = projetos ] && continue
+    sudo bash <<EOF
+cd ~$SISLEGIS_USER
+rsync -avR --update --delete $d $PWD/
+chown $USER: $PWD/$d
+EOF
 done

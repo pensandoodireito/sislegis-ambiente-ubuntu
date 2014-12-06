@@ -5,14 +5,23 @@ set +x
 BASEDIR=`cd $(dirname "$0"); echo -n $PWD`
 source "$BASEDIR"/config || exit 1
 
-if [ $USER = vagrant ]
-then
-    for d in /vagrant/{.m2,projetos}; do mkdir -p $d; done
-    ln -s /vagrant/sislegis/home/sislegis/sislegis-ambiente.instaladores ~/sislegis-ambiente.instaladores
-    for d in /vagrant/{.m2,projetos}; do ln -s $d ~/`basename $d`; done
-else
-    grep -q ^$SISLEGIS_USER /etc/passwd || { echo "Usuário $SISLEGIS_USER não existe!"; exit; }
-    cd $SISLEGIS_USER &> /dev/null || { echo "Nada a restaurar!"; exit; }
-    sudo rsync -av --update . /
-    sudo chown -R $SISLEGIS_USER: ~$SISLEGIS_USER
-fi
+[ $USER = vagrant ] && {
+    for d in ${SISLEGIS_USER_DIRS[*]}
+    do 
+        mkdir -p /vagrant/$d
+        ln -s /vagrant/$d ~/$d
+    done
+    sudo tar xvfzP "$BASEDIR"/var-cache.tar.gz
+    exit
+}
+
+grep -q ^$SISLEGIS_USER /etc/passwd || { echo "Usuário $SISLEGIS_USER não existe!"; exit; }
+cd "$BASEDIR"
+sudo bash <<EOF
+for d in ${SISLEGIS_USER_DIRS[*]}
+do
+    [ \$d = projetos ] && continue
+    rsync -av --update \$d ~$SISLEGIS_USER/
+    chown -R $SISLEGIS_USER: ~$SISLEGIS_USER/\$d
+done
+EOF

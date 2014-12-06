@@ -12,9 +12,8 @@ sudo sed -i '
     s/^\(%sudo.*ALL=\).*/\1\(ALL\) NOPASSWD:ALL/
 ' /etc/sudoers
 
-#f=/etc/vim/vimrc.local
-#modeline_str='set modeline'
-#grep -q "^$modeline_str" $f || { echo "$modeline_str" | sudo tee $f }
+f=/etc/vim/vimrc.local
+[ -f "$f" ] || { echo "set modeline" | sudo tee $f; }
 
 if [ $USER != vagrant ]
 then
@@ -76,6 +75,12 @@ git clone $GITHUB_SISLEGIS_AMBIENTE
     echo 'export PROJETOS_DIR=~/projetos' > ${GITHUB_SISLEGIS_AMBIENTE##*/}/ambiente.config
 }
 ${GITHUB_SISLEGIS_AMBIENTE##*/}/instalar
+
+source .\$(hostname -s)
+app_baixar
+app_remote_add_upstream
+app_update_and_deploy
+jboss_start
 EOF
 
 # vim: set ts=4 sw=4 expandtab:
