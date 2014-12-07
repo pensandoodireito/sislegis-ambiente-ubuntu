@@ -34,23 +34,36 @@ fi
 "$BASEDIR"/restaurar
 
 sudo -i -u $SISLEGIS_USER bash <<EOF
-f=~/.bashrc
-
 executar_e_inserir_no_bashrc() {
     local cmd="\$@"
-    eval \$cmd; echo \$cmd >> \$f
+    eval \$cmd; echo \$cmd >> ~/.bashrc
 }
 
-$X_INSTALADO && echo 'export DISPLAY=:0' >> \$f
+$X_INSTALADO && echo 'export DISPLAY=:0' >> ~/.bashrc
 
-$USA_PROXY && {
-    cat << _EOF | tee ~/.proxy
-export http_proxy='$http_proxy'
-export https_proxy='$https_proxy'
-_EOF
+if $USA_PROXY
+then
+    f="$BASEDIR"/.proxy
+    if [ -f "\$f" ]
+    then
+        cp "\$f" ~/
+    else
+        echo "Arquivo \"\$f\" não configurado!"
+        exit 1
+    fi
+
     executar_e_inserir_no_bashrc "source ~/.proxy"
     executar_e_inserir_no_bashrc "export INSTALA_OPCS+=\" --usa-proxy\""
-}
+
+    f=/etc/apt/apt.conf
+    if [ ! -f \$f ] || ! grep -q '^Acquire::http::Proxy' \$f
+    then
+        cat <<_EOF | sudo tee -a \$f
+Acquire::http::Proxy "\$http_proxy";
+Acquire::https::Proxy "\$https_proxy";
+_EOF
+    fi
+fi
 
 executar_e_inserir_no_bashrc "export INSTALA_OPCS+=\" $BAIXA_ARQUIVO\""
 

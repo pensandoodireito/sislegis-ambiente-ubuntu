@@ -15,14 +15,10 @@ vim config
 source config
 ```
 
-No Linux:
+Se estiver utilizando um proxy, configure-o também:
 ```bash
-echo "f=\"$PWD/config\"; [ -f \"\$f\" ] && source \"\$f\"; unset f" >> ~/.bashrc
-```
-
-No OSX:
-```bash
-echo "f=\"$PWD/config\"; [ -f \"\$f\" ] && source \"\$f\"; unset f" >> ~/.profile
+cp .proxy.exemplo .proxy
+vim .proxy
 ```
 
 ## Montando o ambiente através do Vagrant
