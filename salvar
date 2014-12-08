@@ -4,9 +4,10 @@ set +x
 
 BASEDIR=`cd $(dirname "$0"); echo -n $PWD`
 source "$BASEDIR"/config || exit 1
+source "$BASEDIR"/defaults || exit 1
 
 [ $USER = vagrant ] && {
-    sudo tar cvfzP "$BASEDIR"/var-cache.tar.gz /var/cache
+    sudo tar cvfP /vagrant/"$VAGRANT_BACKUP_TAR" /var/cache
     exit
 }
 

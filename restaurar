@@ -4,14 +4,15 @@ set +x
 
 BASEDIR=`cd $(dirname "$0"); echo -n $PWD`
 source "$BASEDIR"/config || exit 1
+source "$BASEDIR"/defaults || exit 1
 
 [ $USER = vagrant ] && {
     for d in ${SISLEGIS_USER_DIRS[*]}
     do 
         mkdir -p /vagrant/$d
-        ln -s /vagrant/$d ~/$d
+        [ -d ~/$d ] || ln -s /vagrant/$d ~/$d
     done
-    sudo tar xvfzP "$BASEDIR"/var-cache.tar.gz
+    f=/vagrant/"$VAGRANT_BACKUP_TAR"; [ -f "$f" ] && sudo tar xvfP "$f"
     exit
 }
 
