@@ -2,13 +2,6 @@ USA_PROXY=false
 BAIXA_INSTALADORES=true
 
 export SISLEGIS_PORT=8080
-SISLEGIS_USER=sislegis
-SISLEGIS_USER_DIRS=(
-.m2
-.forge
-projetos
-sislegis-ambiente.instaladores
-)
 
 GITHUB_USER=paulojeronimo
 GITHUB_NAME='Paulo Jerônimo'
