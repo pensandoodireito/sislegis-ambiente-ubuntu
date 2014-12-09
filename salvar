@@ -8,6 +8,7 @@ source "$BASEDIR"/defaults || exit 1
 
 [ $USER = vagrant ] && {
     sudo tar cvfP /vagrant/"$VAGRANT_BACKUP_TAR" /var/cache
+    salvar_instaladores
     exit
 }
 
