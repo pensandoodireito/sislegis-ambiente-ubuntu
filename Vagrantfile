@@ -4,8 +4,7 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "chef/ubuntu-14.10"
-  config.vm.box_check_update = false
+  config.vm.box = "boxcutter/ubuntu1504"
 
   # Desabilita a atualização automática do VirtualBox Guest Additions
   # (feita pelo plugin vbguest - https://github.com/dotless-de/vagrant-vbguest)
@@ -19,8 +18,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :forwarded_port, guest: 8080, host: sislegis_port
   config.vm.network :forwarded_port, guest: 9990, host: 9990
 
+  # Exporta portas utilizadas pelo PostgreSQL
+  config.vm.network :forwarded_port, guest: 5432, host: 5432
+
   config.vm.provider "virtualbox" do |v|
-    v.gui = true
+    # Apresenta a console da VM dentro do VirtualBox:
+    #v.gui = true
+
+    # Ajusta a quantidade de memória utilizada pela VM:
     v.memory = 2048
   end
 

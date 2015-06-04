@@ -69,9 +69,7 @@ fi
 executar_e_inserir_no_bashrc "export INSTALA_OPCS+=\" $BAIXA_ARQUIVO\""
 
 sudo apt-get -y update
-sudo apt-get install -y tar unzip wget vim software-properties-common git
-sudo -E add-apt-repository -y ppa:webupd8team/java
-sudo apt-get install -y oracle-java8-installer
+sudo apt-get install -y tar unzip wget vim software-properties-common git openjdk-8-jdk
 
 git clone $GITHUB_SISLEGIS_DOTFILES
 ${GITHUB_SISLEGIS_DOTFILES##*/}/install
@@ -94,6 +92,7 @@ source .\$(hostname -s)
 app_baixar
 app_remote_add_upstream
 app_update_and_deploy
+app_createdb
 jboss_start
 EOF
 
