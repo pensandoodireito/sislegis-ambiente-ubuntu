@@ -78,12 +78,14 @@ sudo su - sislegis
 ## URLs relativas a aplicação
 
 * Acesso a aplicação: http://sislegis.local:8080
-* Acesso a administração do Wildfly: http://silegis.local:9990
-* Acesso a administração dos usuários da aplicação: http://localhost:8180/auth
+* Acesso a administração do Wildfly: http://sislegis.local:9990
+    * Usuário/senha: sislegis/@dmin123
+* Acesso a administração dos usuários da aplicação: http://localhost:8080/auth
+    * Usuário/senha: admin/admin
 
 ## Salvando o ambiente
 
-O salvamento do ambiente é interessante de ser realizado para que ele possa ser reconstruído de forma mais ágil numa próxima montagem. Para realizar essa operação, execute o seguinte script dentro do ambiente que estiver senod executado (real ou o virtual executado pelo usuário ``vagrant``):
+O salvamento do ambiente é interessante de ser realizado para que ele possa ser reconstruído de forma mais ágil numa próxima montagem. Para realizar essa operação, execute o seguinte script dentro do ambiente que estiver sendo executado (real ou o virtual executado pelo usuário ``vagrant``):
 
 ```bash
 ./salvar
